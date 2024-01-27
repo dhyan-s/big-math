@@ -330,6 +330,14 @@ class bignum:
         result = bignum(f"{self.get_whole()}.{self.get_decimal()[:num_decimals]}{'0'*(num_decimals-len(self.get_decimal()))}")
         return result
     
+    @staticmethod
+    def notation_to_normal(val: Union[str, bignum]) -> bignum:
+        notation_num = bignum(str(val).lower())
+        if 'e' in str(notation_num):
+            num, exponent = notation_num.split('e')
+            exponent = exponent[1:] if exponent.startswith('+') else exponent
+            return num.shift_decimals_right(exponent)
+        return notation_num
     
     def __gt__(self, val: bignum) -> bool:
         """Check if the value is greater than another value"""
