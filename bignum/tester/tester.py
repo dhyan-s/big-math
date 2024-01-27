@@ -154,7 +154,7 @@ class Tester:
             fast_append(file, '\n\n')
         return result, duration
         
-    def test_from_file(self, write_in_file=None, use_existing_num=True, num1_properties: NumProperties = None, num2_properties: NumProperties = None):
+    def test_in_file(self, write_in_file=None, use_existing_num=True, num1_properties: NumProperties = None, num2_properties: NumProperties = None):
         if (not use_existing_num or not os.path.exists(f"{os.path.expanduser('~')}\\.large_values.txt")):
             num1, num2 = self.generate_large_file(num1_properties, num2_properties)
         else:
