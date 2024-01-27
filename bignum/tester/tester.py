@@ -132,36 +132,35 @@ class Tester:
         with open(f"{os.path.expanduser('~')}\\.large_values.txt", 'w') as f:
             num1 = num1_properties.generate()
             num2 = num2_properties.generate()
-            f.write(f"{num1}\n{num2}\n\n\n")
+            f.write(f"Num 1:\n{num1}\n\n{self.operation}\n\nNum 2:\n{num2}\n\n\n")
         return num1, num2
     
-    def write_result(self, num1, num2, write_in_file: Tuple[bool, bool]):
+    def write_result(self, num1, num2, write_result_in_file: Tuple[bool, bool]): # Result, time taken
         file = f"{os.path.expanduser('~')}\\.large_values.txt"       
         start = time.perf_counter()
         result = self.operation_func(num1, num2)
         end = time.perf_counter()
         duration = bignum.notation_to_normal(Decimal(end)-Decimal(start))
         
-        if write_in_file is None:
-            write_in_file = [False, False]
-        if True in write_in_file:
-            fast_append(file, "\n")
-            if write_in_file[1]:
-                fast_append(file, f"{duration}s ({self.operation})")
+        if write_result_in_file is None:
+            write_result_in_file = [False, False]
+        if True in write_result_in_file:
+            fast_append(file, "\n\nResult:\n")
+            if write_result_in_file[0]:
+                fast_append(file, str(result) + "\n\n")
+            if write_result_in_file[1]:
+                fast_append(file, f"Time taken: {duration}s ({self.operation})")
                 fast_append(file, '\n')
-            if write_in_file[0]:
-                fast_append(file, str(result))
             fast_append(file, '\n\n')
         return result, duration
         
-    def test_in_file(self, write_in_file=None, use_existing_num=True, num1_properties: NumProperties = None, num2_properties: NumProperties = None):
+    def test_in_file(self, write_result_in_file=None, use_existing_num=True, num1_properties: NumProperties = None, num2_properties: NumProperties = None):
         if (not use_existing_num or not os.path.exists(f"{os.path.expanduser('~')}\\.large_values.txt")):
             num1, num2 = self.generate_large_file(num1_properties, num2_properties)
         else:
             print("Reading")
             content = fast_read(f"{os.path.expanduser('~')}\\.large_values.txt", fix_improper_newlines=False)
-            print("Read")
-            content_lines = content.splitlines()
+            content_lines = list(filter(lambda item: item not in ['', '\n', self.operation], content.splitlines()))
             num1, num2 = content_lines[0], content_lines[1]
-        return self.write_result(num1, num2, write_in_file)
+        return self.write_result(num1, num2, write_result_in_file)
     
