@@ -48,10 +48,10 @@ class Subtract:
         
         NOTE: num1 must be >= num2
         """
-        if len(num1) <= self.chunk_size and len(num2) <= self.chunk_size:
+        if len(num1) <= Subtract.chunk_size and len(num2) <= Subtract.chunk_size:
             return bignum(int(num1) - int(num2))
-        num1_chunks = num1.chunk_whole(Subtract.chunk_size, reverse=True)
-        num2_chunks = num2.chunk_whole(Subtract.chunk_size, reverse=True)
+        num1_chunks = list(num1.chunk_whole(Subtract.chunk_size, reverse=True))
+        num2_chunks = list(num2.chunk_whole(Subtract.chunk_size, reverse=True))
         
         result = []
         for idx in range(len(num1_chunks)):
