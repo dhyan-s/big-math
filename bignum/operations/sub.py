@@ -2,7 +2,7 @@ from typing import List
 from ..bignum import bignum
 import sys
 
-# sys.setrecursionlimit(999999999)
+sys.setrecursionlimit(999999999)
 
 class Subtract:
     chunk_size = 500
