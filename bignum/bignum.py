@@ -63,6 +63,12 @@ class bignum:
         """Get the decimal part of the value."""
         return bignum(self.__val.split(".")[1] if self.has_decimal() else '0')
     
+    def remove_decimal(self) -> bignum:
+        """Remove the decimal point if any."""
+        if self.has_decimal(include_trailing_zeros=True):
+            return bignum(self.__val.replace('.', ''))
+        return self
+    
     def get_whole(self) -> bignum:
         """Get the whole part of the value."""
         return bignum(self.__val.split('.')[0] if self.has_decimal(True) else self.__val)
@@ -74,6 +80,9 @@ class bignum:
     def is_positive(self) -> bool: 
         """Check if the value is positive."""
         return not self.__val.startswith('-')
+    
+    def copy(self) -> bignum:
+        return bignum(self)
     
     to_positive = __abs__
     
@@ -220,6 +229,8 @@ class bignum:
         >>> b.shift_decimals_left(10)
         bignum('0.0123450010')
         """
+        if places == 0:
+            return self.copy()
         if places < 0:
             return self.shift_decimals_right(abs(places), filter_)
         neg = self.is_negative()
@@ -234,7 +245,7 @@ class bignum:
         result = result.to_negative() if neg else result
         return result.filtered() if filter_ else result
     
-    def shift_decimals_right(self, places, filter_=False) -> bignum:
+    def shift_decimals_right(self, places: int, filter_=False) -> bignum:
         """
         Shift the decimal point of the value to the right by a specified number of places.
 
@@ -254,7 +265,8 @@ class bignum:
         >>> b.shift_decimals_right(6)
         bignum('12345000')
         """
-        places = int(places)
+        if places == 0:
+            return self.copy()
         if places < 0:
             return self.shift_decimals_left(abs(places), filter_)
         neg = self.is_negative()
@@ -332,12 +344,12 @@ class bignum:
     
     @staticmethod
     def notation_to_normal(val: Union[str, bignum]) -> bignum:
-        notation_num = bignum(str(val).lower())
+        notation_num = str(val).lower()
         if 'e' in str(notation_num):
             num, exponent = notation_num.split('e')
             exponent = exponent[1:] if exponent.startswith('+') else exponent
-            return num.shift_decimals_right(exponent)
-        return notation_num
+            return bignum(num).shift_decimals_right(int(exponent))
+        return bignum(notation_num)
     
     def __gt__(self, val: bignum) -> bool:
         """Check if the value is greater than another value"""
@@ -384,7 +396,7 @@ class bignum:
     
     def __eq__(self, val: bignum) -> bool:
         """Check if a value is equal to another value."""
-        return str(self.filtered()) == str(bignum(val).filtered())
+        return str(self.filtered()) == str(bignum.notation_to_normal(val).filtered())
     
     def __ge__(self, val: bignum) -> bool:
         """Check if a value is greater than or equal to another value."""
@@ -394,4 +406,15 @@ class bignum:
         """Check if a value is less than or equal to another value."""
         return (self < bignum(val) or self == bignum(val))
     
+    def __add__(self, val: bignum) -> bignum:
+        return add(self, bignum(val))
+    
+    def __sub__(self, val: bignum) -> bignum:
+        return sub(self, bignum(val))
+    
+    def __mul__(self, val: bignum) -> bignum:
+        return mul(self, bignum(val))
+    
 from .operations.add import add
+from .operations.sub import sub
+from .operations.mul import mul
