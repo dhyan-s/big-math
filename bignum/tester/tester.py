@@ -160,7 +160,7 @@ class Tester:
         else:
             print("Reading")
             content = fast_read(f"{os.path.expanduser('~')}\\.large_values.txt", fix_improper_newlines=False)
-            content_lines = list(filter(lambda item: item not in ['', '\n', self.operation], content.splitlines()))
+            content_lines = list(filter(lambda item: item not in ['', '\n', self.operation, "Num 1:", "Num 2:"], content.splitlines()))
             num1, num2 = content_lines[0], content_lines[1]
         return self.write_result(num1, num2, write_result_in_file)
     
