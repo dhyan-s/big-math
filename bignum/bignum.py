@@ -415,6 +415,10 @@ class bignum:
     def __mul__(self, val: bignum) -> bignum:
         return mul(self, bignum(val))
     
+    def __div__(self, val: bignum) -> bignum:
+        return div(self, bignum(val))
+    
 from .operations.add import add
 from .operations.sub import sub
 from .operations.mul import mul
+from .operations.div import div
