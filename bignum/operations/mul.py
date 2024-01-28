@@ -63,7 +63,6 @@ class Multiply:
         num1, num2 = num1.filtered(), num2.filtered()
         total_decimal_length = len(str(num1.get_decimal()).rstrip('0') + str(num2.get_decimal()).rstrip('0'))
         num1, num2 = num1.remove_decimal(), num2.remove_decimal()
-        num1, num2 = num1.filtered(), num2.filtered()
         res = self.mul_two_whole_nums(num1, num2)
         res = res.shift_decimals_left(total_decimal_length)
         return res
