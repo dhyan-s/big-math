@@ -3,12 +3,18 @@ import customtkinter as ctk
 from tkinter import *
 from tkinter import messagebox
 import pyperclip
+from bignum import bignum
+import os
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
+cur_dir = os.path.dirname(__file__)
+file_name = 'result.txt'
+file_path = os.path.abspath(f"{cur_dir}/{file_name}")
+
 # read text from result.txt
-with open('result.txt', 'r') as file:
+with open(file_path, 'r') as file:
     # Read the content of the file and store it in a variable
     number = str(file.read())
 
@@ -70,7 +76,7 @@ class ComplexCalculator(ctk.CTk):
         self.addTextBoxBtn.grid(row=3, column=0, pady=(20, 0))
 
         # evaluate result based on given input
-        self.evaluateBtn = ctk.CTkButton(self.inputFrame, text="Evaluate Result", corner_radius=6, font=("Arial", 20), command=self.loadFirstChunk)
+        self.evaluateBtn = ctk.CTkButton(self.inputFrame, text="Evaluate Result", corner_radius=6, font=("Arial", 20), command=self.evaluate)
         self.evaluateBtn.grid(row=4, column=0, pady=(15, 10), ipadx=4, ipady=3, columnspan=3)
 
         # creating output division under output frame
@@ -79,6 +85,9 @@ class ComplexCalculator(ctk.CTk):
 
         self.copyTextBtn = ctk.CTkButton(self.outputText, text="Copy", width=10, command=self.copyText)
         self.copyTextBtn.grid(row=0, column=0, sticky=NE, pady=5, padx=0)
+        
+        self.input_boxes = [self.inputText1, self.inputText2]
+        self.option_cboxes = [self.operationComboBox]
 
         self.initialRow = 3
 
@@ -93,15 +102,18 @@ class ComplexCalculator(ctk.CTk):
 
         self.addTextBoxBtn.grid(row=self.initialRow+3, column=0, pady=(15, 0))
         self.evaluateBtn.grid(row=self.initialRow+4)
+        
+        self.input_boxes.append(self.newInputText)
+        self.option_cboxes.append(self.newOperatorDropdown)
 
         self.initialRow+=5
 
 
     # load the first chunk of the data(with 1000 characters) on clicking evaluate button
     def loadFirstChunk(self):
-        messagebox.showwarning("Dummy numbers", "We did not have enough time to complete the integration. However, to demonstrate the functionality of the chunk loading, some dummy numbers will be used.")
+        # messagebox.showwarning("Dummy numbers", "We did not have enough time to complete the integration. However, to demonstrate the functionality of the chunk loading, some dummy numbers will be used.")
         global current_chunk
-        with open("result.txt", 'r') as f:
+        with open(file_path, 'r') as f:
             f.seek(current_chunk * chunkSize)
             content = f.read(chunkSize)
             chunkArray.append([current_chunk, content])
@@ -114,7 +126,7 @@ class ComplexCalculator(ctk.CTk):
     def loadNewChunk(self):
         global current_chunk
         if current_chunk<chunkNumber:
-            with open("result.txt", 'r') as f:
+            with open(file_path, 'r') as f:
                 current_chunk+=1
                 f.seek(current_chunk * chunkSize)
                 content = f.read(chunkSize)
@@ -132,7 +144,7 @@ class ComplexCalculator(ctk.CTk):
         global current_chunk
         if current_chunk>0:
             self.outputText.delete(1.0, END)
-            with open("result.txt", 'r') as f:
+            with open(file_path, 'r') as f:
                 current_chunk -= 1
                 f.seek(current_chunk * chunkSize)
                 content = f.read(chunkSize)
@@ -144,6 +156,7 @@ class ComplexCalculator(ctk.CTk):
 
     # transfer data in output screen to input screen if required
     def transferOutput(self):
+        self.outputText.delete('1.0', END)
         self.inputText1.insert(1.0, number)
 
 
@@ -156,6 +169,27 @@ class ComplexCalculator(ctk.CTk):
     def copyText(self):
         self.textCopied = str(self.outputText.get("1.0", END))
         pyperclip.copy(self.textCopied)
+        
+    def evaluate(self):
+        operation_funcs = {
+            '+': [bignum.add, '0'],
+            '-': [bignum.sub, '0'],
+            '*': [bignum.mul, '1'],
+            '/': [bignum.div, '0'],
+        }
+        text_contents = [textbox.get('1.0', 'end-1c') for textbox in self.input_boxes]
+        operations = [combobox.get()[0] for combobox in self.option_cboxes]
+        filter_value = lambda text: text.replace(' ', '').replace('\n', '')
+        
+        result = operation_funcs[operations[0]][1]
+        for idx in range(0, len(text_contents), 2):
+            operation, default_operation_result = operation_funcs[operations[idx]]
+            print(result, filter_value(text_contents[idx]), filter_value(text_contents[idx+1]))
+            result = operation(result, filter_value(text_contents[idx]), (filter_value(text_contents[idx+1]) if idx < len(text_contents) else default_operation_result))
+        with open(file_path, 'w') as f:
+            f.write(str(result))
+        self.outputText.delete('1.0', END)
+        self.loadFirstChunk()
 
 # launch application
 app = ComplexCalculator()
