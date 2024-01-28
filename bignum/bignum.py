@@ -44,7 +44,6 @@ class bignum:
             val (str): The value to be checked.
             scientific_notation (bool): Whether scientific notation is allowed (default: False).
         """
-        # gmpy2.mpfr(str(val))
         try:
             gmpy2.mpfr(str(val))
             return bool(scientific_notation) if "e" in val else True
