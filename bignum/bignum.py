@@ -61,7 +61,7 @@ class bignum:
     
     def get_decimal(self) -> bignum:
         """Get the decimal part of the value."""
-        return bignum(self.__val.split(".")[1] if self.has_decimal() else '0')
+        return bignum(self.__val.split(".")[1] if self.has_decimal(True) else '0')
     
     def remove_decimal(self) -> bignum:
         """Remove the decimal point if any."""
